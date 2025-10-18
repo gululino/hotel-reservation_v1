@@ -6,28 +6,50 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Room represents a hotel room
 type Room struct {
 	Number     int
 	Type       string
+	Price      float64
 	IsReserved bool
 }
 
 // reservation represents a booking
 type Reservation struct {
+	ID         int
 	RoomNumber int
 	GuestName  string
+	GuestEmail string
+	CheckIn    time.Time
+	CheckOut   time.Time
+	CreatedAt  time.Time
 }
 
-var rooms = []Room{
-	{Number: 101, Type: "Single", IsReserved: false},
-	{Number: 102, Type: "Double", IsReserved: false},
-	{Number: 201, Type: "Suite", IsReserved: false},
+// HotelSystem manages the hotel operations
+type HotelSystem struct {
+	rooms        []Room
+	reservations []Reservation
+	nextResID    int
 }
 
-var reservations []Reservation
+func NewHotelSystem() *HotelSystem {
+	return &HotelSystem{
+		rooms: []Room{
+			{Number: 101, Type: "Single", Price: 80.00, IsReserved: false},
+			{Number: 102, Type: "Double", Price: 100.00, IsReserved: false},
+			{Number: 201, Type: "Suite", Price: 280.00, IsReserved: false},
+			{Number: 103, Type: "Single", Price: 90.00, IsReserved: false},
+			{Number: 202, Type: "Double", Price: 130.00, IsReserved: false},
+			{Number: 301, Type: "Suite", Price: 289.00, IsReserved: false},
+		},
+
+		reservations: []Reservation{},
+		nextResID:    1,
+	}
+}
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
