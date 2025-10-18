@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"honnef.co/go/tools/printf"
 )
 
 // Room represents a hotel room
@@ -54,7 +52,7 @@ func NewHotelSystem() *HotelSystem {
 }
 
 func main() {
-	hotel := NewHotelSystem()
+	h := NewHotelSystem()
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("======================================================")
@@ -67,15 +65,15 @@ func main() {
 
 		switch option {
 		case "1":
-			viewAvailableRooms()
+			h.viewAvailableRooms()
 		case "2":
-			makeReservation(reader)
+			h.makeReservation(reader)
 		case "3":
-			viewReservations()
+			h.viewReservations()
 		case "4":
-			cancelReservations()
+			h.cancelReservations(reader)
 		case "5":
-			searchRoom()
+			h.searchRoom(reader)
 		case "6":
 			fmt.Println("\nThank you for using our system. Goodbye...")
 			return
@@ -113,10 +111,10 @@ func (h *HotelSystem) viewAvailableRooms() {
 	hasAvailable := false
 	for _, room := range h.rooms {
 		if !room.IsReserved {
-			fmt.Printf(" Room %d | Type: %-8s | Price: $%.2f/night\n")
-				room.Number, room.Type, room.Price
+			fmt.Printf(" Room %d | Type: %-8s | Price: $%.2f/night\n",
+				room.Number, room.Type, room.Price)
 			hasAvailable = true
-		
+
 		}
 	}
 
@@ -126,11 +124,10 @@ func (h *HotelSystem) viewAvailableRooms() {
 	fmt.Println("--------------------------------------")
 }
 
-
 func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 	h.viewAvailableRooms()
 
-	// get room number 
+	// get room number
 	roomInput := readInput(reader, "\nEnter Room Number to reserve:")
 	roomInput = strings.TrimSpace(roomInput)
 	roomNumber, err := strconv.Atoi(roomInput)
@@ -139,7 +136,7 @@ func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 		return
 	}
 
-	// find and validate room 
+	// find and validate room
 	roomIndex := h.findRoomIndex(roomNumber)
 	if roomIndex == -1 {
 		fmt.Println("Room not found")
@@ -164,7 +161,7 @@ func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 		return
 	}
 
-	// get check in date 
+	// get check in date
 	checkInStr := readInput(reader, "Enter Check-In date (YYYY-MM-DD) :")
 	checkIn, err := time.Parse("2006-01-02", checkInStr)
 	if err != nil {
@@ -172,7 +169,7 @@ func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 		return
 	}
 
-	// get check out date 
+	// get check out date
 	checkOutStr := readInput(reader, "Enter Check-Out date (YYYY-MM-DD) :")
 	checkOut, err := time.Parse("2006-01-02", checkOutStr)
 	if err != nil {
@@ -181,43 +178,41 @@ func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 	}
 
 	// validate dates
-	if CheckOut.Before(checkIn) || CheckOut.Equal(checkIn) {
+	if checkOut.Before(checkIn) || checkOut.Equal(checkIn) {
 		fmt.Println("Check-out date must be after check-in date ")
 		return
 	}
 
 	//calculate stay duration and total cost
-	nights := int(CheckOut.Sub(checkIn).Hours() / 24)
+	nights := int(checkOut.Sub(checkIn).Hours() / 24)
 	totalCost := float64(nights) * h.rooms[roomIndex].Price
 
-
-	// create reservation 
+	// create reservation
 	reservation := Reservation{
-		ID: 			h.nextResID,
-		RoomNumber: 	roomNumber,
-		GuestName: 		guestName,
-		GuestEmail:		guestEmail,
-		CheckIn: 		checkIn,
-		CheckOut:		checkOut,
-		CreatedAt:		time.Now(),
+		ID:         h.nextResID,
+		RoomNumber: roomNumber,
+		GuestName:  guestName,
+		GuestEmail: guestEmail,
+		CheckIn:    checkIn,
+		CheckOut:   checkOut,
+		CreatedAt:  time.Now(),
 	}
 
 	h.rooms[roomIndex].IsReserved = true
 	h.reservations = append(h.reservations, reservation)
 	h.nextResID++
 
-
 	println("\n  Reservation Successful!")
 	println("-------------------------------------")
-	printf("Rerservation ID : #%d\n", reservation.ID)
-	printf("Guest : %s (%s)\n", guestName, guestEmail)
-	printf("Room : %d (%s)\n", roomNumber, h.rooms[roomIndex].Type)
-	printf("Check-in : %s\n", checkIn.Format("2006-09-09"))
-	printf("Check-out : %s\n", checkOut.Format("2006-09-09"))
-	printf("Duration : %d night(s)\n")
-	printf("Total Cost : $%.2f\n", totalCost)
+	fmt.Printf("Rerservation ID : #%d\n", reservation.ID)
+	fmt.Printf("Guest : %s (%s)\n", guestName, guestEmail)
+	fmt.Printf("Room : %d (%s)\n", roomNumber, h.rooms[roomIndex].Type)
+	fmt.Printf("Check-in : %s\n", checkIn.Format("2006-09-09"))
+	fmt.Printf("Check-out : %s\n", checkOut.Format("2006-09-09"))
+	fmt.Printf("Duration : %d night(s)\n")
+	fmt.Printf("Total Cost : $%.2f\n", totalCost)
 	println("-------------------------------------")
-	
+
 }
 
 func (h *HotelSystem) viewReservations() {
@@ -231,10 +226,10 @@ func (h *HotelSystem) viewReservations() {
 	for _, res := range h.reservations {
 		roomType := h.getRoomType(res.RoomNumber)
 		nights := int(res.CheckOut.Sub(res.CheckIn).Hours() / 24)
-		fmt.Printf("ID: #%-3d | Room: %-3d (%-8s) | Guest: %-20s\n", 
+		fmt.Printf("ID: #%-3d | Room: %-3d (%-8s) | Guest: %-20s\n",
 			res.ID, res.RoomNumber, roomType, res.GuestName)
 		fmt.Printf("         Email: %-20s | Stay: %s to %s (%d nights)\n",
-			res.GuestEmail, 
+			res.GuestEmail,
 			res.CheckIn.Format("2006-01-02"),
 			res.CheckOut.Format("2006-01-02"),
 			nights)
@@ -243,7 +238,7 @@ func (h *HotelSystem) viewReservations() {
 }
 
 // cancel reservation
-func (h *HotelSystem) cancelReservations(reader *bufio.Reader){
+func (h *HotelSystem) cancelReservations(reader *bufio.Reader) {
 	if len(h.reservations) == 0 {
 		fmt.Println("\n No reservation to cancel.")
 	}
@@ -259,14 +254,14 @@ func (h *HotelSystem) cancelReservations(reader *bufio.Reader){
 
 	for i, res := range h.reservations {
 		if resID == resID {
-			// free up the room 
+			// free up the room
 			roomIndex := h.findRoomIndex(res.RoomNumber)
 			if roomIndex != -1 {
 				h.rooms[roomIndex].IsReserved = false
 			}
 
 			// remove the room
-			h.reservations = append(h.reservations[:i], h.reservations[i+1]... )
+			h.reservations = append(h.reservations[:i], h.reservations[i+1:]...)
 			fmt.Printf("Reservation #%d cancelled successfully .\n", resID)
 			return
 		}
@@ -275,7 +270,7 @@ func (h *HotelSystem) cancelReservations(reader *bufio.Reader){
 	fmt.Println("Reservation ID not found")
 }
 
-func (h *HotelSystem) findRoomIndex (roomNumber int) int {
+func (h *HotelSystem) findRoomIndex(roomNumber int) int {
 	for i, room := range h.rooms {
 		if room.Number == roomNumber {
 			return i
@@ -284,7 +279,6 @@ func (h *HotelSystem) findRoomIndex (roomNumber int) int {
 
 	return -1
 }
-
 
 func (h *HotelSystem) getRoomType(roomNumber int) string {
 	idx := h.findRoomIndex(roomNumber)
@@ -295,10 +289,9 @@ func (h *HotelSystem) getRoomType(roomNumber int) string {
 	return "Unknown"
 }
 
-fun isValidEmail(Email string) bool {
-	return Strings.Contains(email, "@") && strings.Contains(email, ".")
+func isValidEmail(email string) bool {
+	return strings.Contains(email, "@") && strings.Contains(email, ".")
 }
-
 
 func (h *HotelSystem) searchRoom(reader *bufio.Reader) {
 	fmt.Println("\nAvailable Room Types: Single, Double, Suite")
@@ -307,7 +300,7 @@ func (h *HotelSystem) searchRoom(reader *bufio.Reader) {
 
 	fmt.Printf("\nAvailable %s Rooms:\n", roomType)
 	fmt.Println("─────────────────────────────────────────")
-	
+
 	found := false
 	for _, room := range h.rooms {
 		if room.Type == roomType && !room.IsReserved {
