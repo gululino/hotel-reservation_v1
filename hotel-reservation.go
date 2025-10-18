@@ -52,34 +52,50 @@ func NewHotelSystem() *HotelSystem {
 }
 
 func main() {
+	hotel := NewHotelSystem()
 	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Println("======================================================")
+	fmt.Println("      Welcome to the new Hotel Revervation System")
+	fmt.Println("======================================================")
+
 	for {
-		fmt.Println("Hotel Reservation System")
-		fmt.Println("1. View Rooms")
-		fmt.Println("2. Make Reservation")
-		fmt.Println("3. View Reservations")
-		fmt.Println("4. Exit")
-		fmt.Print("Select an option: ")
-		option, _ := reader.ReadString('\n')
-		option = strings.TrimSpace(option)
+		displayMenu()
+		option := readInput(reader, "Select an option: ")
 
 		switch option {
 		case "1":
 			viewAvailableRooms()
-			fmt.Println()
 		case "2":
 			makeReservation(reader)
-			fmt.Println()
 		case "3":
 			viewReservations()
-			fmt.Println()
 		case "4":
-			fmt.Println("Exiting...")
+			cancelReservations()
+		case "5":
+			searchRoom()
+		case "6":
+			fmt.Println("\nThank you for using our system. Goodbye...")
 			return
 		default:
-			fmt.Println("Invalid option. Please try again.")
+			fmt.Println("Invalid option selected. Please select 1-6.")
 		}
+		fmt.Println()
 	}
+}
+
+func displayMenu() {
+	fmt.Println("--------------------------------------")
+	fmt.Println("|      MAIN MENU                     |")
+	fmt.Println("--------------------------------------")
+	fmt.Println("1. View Available Rooms")
+	fmt.Println("2. Make Reservation")
+	fmt.Println("3. View Reservations")
+	fmt.Println("4. Cancel Reservations")
+	fmt.Println("5. Search Room by Type")
+	fmt.Println("6. Exit")
+	fmt.Println("--------------------------------------- ")
+
 }
 
 func viewAvailableRooms() {
