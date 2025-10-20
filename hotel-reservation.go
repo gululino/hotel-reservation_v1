@@ -311,7 +311,7 @@ func isValidEmail(email string) bool {
 func (h *HotelSystem) searchRoom(reader *bufio.Reader) {
 	fmt.Println("\nAvailable Room Types: Single, Double, Suite")
 	roomType := readInput(reader, "Enter room type to search: ")
-	roomType = cases.Title(language.English).Strings(strings.ToLower(roomType))
+	roomType = cases.Title(language.English).String(strings.ToLower(roomType))
 
 	fmt.Printf("\nAvailable %s Rooms:\n", roomType)
 	fmt.Println("─────────────────────────────────────────")
