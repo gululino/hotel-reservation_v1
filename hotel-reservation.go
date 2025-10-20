@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"net/mail"
 	"os"
 	"strconv"
 	"strings"
@@ -156,7 +157,7 @@ func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 	}
 
 	guestEmail := readInput(reader, "Enter Guest Email: ")
-	if isValidEmail(guestEmail) {
+	if !isValidEmail(guestEmail) {
 		fmt.Println("Warrning: Email format may be invalid.")
 		return
 	}
@@ -243,7 +244,7 @@ func (h *HotelSystem) cancelReservations(reader *bufio.Reader) {
 		fmt.Println("\n No reservation to cancel.")
 	}
 
-	h.viewAvailableRooms()
+	h.viewReservations()
 
 	resIDStr := readInput(reader, "\nEnter reservation ID to cancel: ")
 	resID, err := strconv.Atoi(resIDStr)
@@ -290,7 +291,8 @@ func (h *HotelSystem) getRoomType(roomNumber int) string {
 }
 
 func isValidEmail(email string) bool {
-	return strings.Contains(email, "@") && strings.Contains(email, ".")
+	_, err := mail.ParseAddress(email)
+	return err == nil
 }
 
 func (h *HotelSystem) searchRoom(reader *bufio.Reader) {
