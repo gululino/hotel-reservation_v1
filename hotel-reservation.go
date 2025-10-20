@@ -8,6 +8,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // Room represents a hotel room
@@ -36,6 +39,7 @@ type HotelSystem struct {
 	nextResID    int
 }
 
+// hotel system manages rooom, reservation and reservation ID
 func NewHotelSystem() *HotelSystem {
 	return &HotelSystem{
 		rooms: []Room{
@@ -52,6 +56,7 @@ func NewHotelSystem() *HotelSystem {
 	}
 }
 
+// the main function, everything starts here
 func main() {
 	h := NewHotelSystem()
 	reader := bufio.NewReader(os.Stdin)
@@ -85,6 +90,7 @@ func main() {
 	}
 }
 
+// display menu for all functions
 func displayMenu() {
 	fmt.Println("--------------------------------------")
 	fmt.Println("|      MAIN MENU                     |")
@@ -99,12 +105,14 @@ func displayMenu() {
 
 }
 
+// reads inputs and removes spaces or newlines
 func readInput(reader *bufio.Reader, prompt string) string {
 	fmt.Print(prompt)
 	input, _ := reader.ReadString('\n')
 	return strings.TrimSpace(input)
 }
 
+// fucntion for viewing all rooms
 func (h *HotelSystem) viewAvailableRooms() {
 	fmt.Println("\n Available Rooms:")
 	fmt.Println("----------------------------------------")
@@ -125,6 +133,7 @@ func (h *HotelSystem) viewAvailableRooms() {
 	fmt.Println("--------------------------------------")
 }
 
+// func for making room reservations
 func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 	h.viewAvailableRooms()
 
@@ -149,13 +158,14 @@ func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 		return
 	}
 
-	// get Gues information
+	// get Guest information
 	guestName := readInput(reader, "Enter Guest Name: ")
 	if guestName == "" {
 		fmt.Println("Guest name cannot be empty.")
 		return
 	}
 
+	// gets and validates guest email
 	guestEmail := readInput(reader, "Enter Guest Email: ")
 	if !isValidEmail(guestEmail) {
 		fmt.Println("Warrning: Email format may be invalid.")
@@ -210,12 +220,13 @@ func (h *HotelSystem) makeReservation(reader *bufio.Reader) {
 	fmt.Printf("Room : %d (%s)\n", roomNumber, h.rooms[roomIndex].Type)
 	fmt.Printf("Check-in : %s\n", checkIn.Format("2006-09-09"))
 	fmt.Printf("Check-out : %s\n", checkOut.Format("2006-09-09"))
-	fmt.Printf("Duration : %d night(s)\n")
+	fmt.Printf("Duration : %d night(s)\n", nights)
 	fmt.Printf("Total Cost : $%.2f\n", totalCost)
 	println("-------------------------------------")
 
 }
 
+// func for listing reservations
 func (h *HotelSystem) viewReservations() {
 	if len(h.reservations) == 0 {
 		fmt.Println("\n No reservations found.")
@@ -254,7 +265,7 @@ func (h *HotelSystem) cancelReservations(reader *bufio.Reader) {
 	}
 
 	for i, res := range h.reservations {
-		if resID == resID {
+		if resID == res.ID {
 			// free up the room
 			roomIndex := h.findRoomIndex(res.RoomNumber)
 			if roomIndex != -1 {
@@ -271,6 +282,7 @@ func (h *HotelSystem) cancelReservations(reader *bufio.Reader) {
 	fmt.Println("Reservation ID not found")
 }
 
+// helper function for room index in the list
 func (h *HotelSystem) findRoomIndex(roomNumber int) int {
 	for i, room := range h.rooms {
 		if room.Number == roomNumber {
@@ -281,6 +293,7 @@ func (h *HotelSystem) findRoomIndex(roomNumber int) int {
 	return -1
 }
 
+// using that romIndex to get room
 func (h *HotelSystem) getRoomType(roomNumber int) string {
 	idx := h.findRoomIndex(roomNumber)
 	if idx != -1 {
@@ -298,7 +311,7 @@ func isValidEmail(email string) bool {
 func (h *HotelSystem) searchRoom(reader *bufio.Reader) {
 	fmt.Println("\nAvailable Room Types: Single, Double, Suite")
 	roomType := readInput(reader, "Enter room type to search: ")
-	roomType = strings.Title(strings.ToLower(roomType))
+	roomType = cases.Title(language.English).Strings(strings.ToLower(roomType))
 
 	fmt.Printf("\nAvailable %s Rooms:\n", roomType)
 	fmt.Println("─────────────────────────────────────────")
