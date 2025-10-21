@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net/mail"
 	"os"
@@ -13,23 +14,33 @@ import (
 	"golang.org/x/text/language"
 )
 
+// hold all the data
+const dataFile = "hotel_data.json"
+
 // Room represents a hotel room
 type Room struct {
-	Number     int
-	Type       string
-	Price      float64
-	IsReserved bool
+	Number     int     `json:"number"`
+	Type       string  `json:"type"`
+	Price      float64 `json:"price"`
+	IsReserved bool    `json:"is_reserved"`
 }
 
 // reservation represents a booking
 type Reservation struct {
-	ID         int
-	RoomNumber int
-	GuestName  string
-	GuestEmail string
-	CheckIn    time.Time
-	CheckOut   time.Time
-	CreatedAt  time.Time
+	ID         int       `json:"id"`
+	RoomNumber int       `json:"room_number"`
+	GuestName  string    `json:"guest_name"`
+	GuestEmail string    `json:"guest_email"`
+	CheckIn    time.Time `json:"check_in"`
+	CheckOut   time.Time `json:"check_out"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+// manages the data to persist
+type HotelData struct {
+	Rooms        []Room        `json:"rooms"`
+	Reservations []Reservation `json:"reservations"`
+	NextResID    int           `json:"next_res_id"`
 }
 
 // HotelSystem manages the hotel operations
@@ -54,6 +65,33 @@ func NewHotelSystem() *HotelSystem {
 		reservations: []Reservation{},
 		nextResID:    1,
 	}
+}
+
+// loadData loads hotel datafrom json file
+func (h *HotelSystem) loadData() error {
+	file, err := os.Open(dataFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // file doesnt exist yet, use the defaults
+		}
+
+		return err
+	}
+
+	defer file.Close()
+
+	var data HotelData
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&data); err != nil {
+		return err
+	}
+
+	h.rooms = data.Rooms
+	h.reservations = data.Reservations
+	h.nextResID = data.NextResID
+
+	fmt.Println("Data loaded successfully from ", dataFile)
+	return nil
 }
 
 // the main function, everything starts here
