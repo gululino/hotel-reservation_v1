@@ -1,0 +1,52 @@
+{
+  "rooms": [
+    {
+      "number": 101,
+      "type": "Single",
+      "price": 80,
+      "is_reserved": true
+    },
+    {
+      "number": 102,
+      "type": "Double",
+      "price": 100,
+      "is_reserved": false
+    },
+    {
+      "number": 201,
+      "type": "Suite",
+      "price": 280,
+      "is_reserved": false
+    },
+    {
+      "number": 103,
+      "type": "Single",
+      "price": 90,
+      "is_reserved": false
+    },
+    {
+      "number": 202,
+      "type": "Double",
+      "price": 130,
+      "is_reserved": false
+    },
+    {
+      "number": 301,
+      "type": "Suite",
+      "price": 289,
+      "is_reserved": false
+    }
+  ],
+  "reservations": [
+    {
+      "id": 1,
+      "room_number": 101,
+      "guest_name": "Manzi",
+      "guest_email": "zeinab@mail.com",
+      "check_in": "2025-10-30T00:00:00Z",
+      "check_out": "2025-11-12T00:00:00Z",
+      "created_at": "2025-10-21T17:43:19.2872451+01:00"
+    }
+  ],
+  "next_res_id": 2
+}
