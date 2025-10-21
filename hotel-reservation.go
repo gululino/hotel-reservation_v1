@@ -121,6 +121,11 @@ func (h *HotelSystem) saveData() error {
 // the main function, everything starts here
 func main() {
 	h := NewHotelSystem()
+
+	// load exisiting data
+	if err := h.loadData(); err != nil {
+		fmt.Printf("Warning: Could not load data :v\n", err)
+	}
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("======================================================")
@@ -143,6 +148,13 @@ func main() {
 		case "5":
 			h.searchRoom(reader)
 		case "6":
+
+			// save data before exiting
+			if err := h.saveData(); err != nil {
+				fmt.Printf("Error saving data: %v\n", err)
+			} else {
+				fmt.Println("Data saved successfully")
+			}
 			fmt.Println("\nThank you for using our system. Goodbye...")
 			return
 		default:
