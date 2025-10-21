@@ -94,6 +94,30 @@ func (h *HotelSystem) loadData() error {
 	return nil
 }
 
+// saveData saves hotel data to Json
+func (h *HotelSystem) saveData() error {
+	data := HotelData{
+		Rooms:        h.rooms,
+		Reservations: h.reservations,
+		NextResID:    h.nextResID,
+	}
+
+	file, err := os.Create(dataFile)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(data); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // the main function, everything starts here
 func main() {
 	h := NewHotelSystem()
